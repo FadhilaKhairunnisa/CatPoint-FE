@@ -17,6 +17,9 @@ return [
         'get_booking' => $endpoint . 'api/booking',
         'post_booking' => $endpoint . 'api/booking',
 
+        // qr
+        'post_qr' => $endpoint . 'api/generateqr',
+
     ],
     'production' => [
         // Uncomment and update the following lines with your production endpoints

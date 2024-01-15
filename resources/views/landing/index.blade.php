@@ -4,8 +4,26 @@
 
 @section('content')
 
-
-    <!-- offer section -->
+    <section id="hero">
+        <div class="container-fluid " style="background-color: #F3D0B3;">
+            <div class="container content-below-navbar h-100">
+                <div class="row h-100">
+                    <div class="col-5 hero-text offset-1 py-5 hiro-tagline my-auto" class="rounded float-start">
+                        <h2 class="h2 fw-bold ">
+                            Buy for your
+                            Pet What ever its Need</h2>
+                        <p>Booking sekarang Pet Hotel CatPoint, dengan fasilitas lengkap untuk
+                            Anabul Kesayangan anda. Dilengkapi dengan pet groming dan fasilitas
+                            jasa antar jemput hewan kesayangan anda.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <img src="{{ asset('CatPointTA/images/Cathall1.png') }}" class="img-fluid position-absolute end-0 bottom-0 img-hero">
+        <!-- <img src="images/Group 64.png" alt="" class=" position-absolute paw-image"> -->
+    </section>
+    </div>
+    <!-- end slider section -->
 
     <section class="offer_section layout_padding-bottom mt-5">
         <section id="service">
@@ -71,7 +89,6 @@
                             <div class="card-layanan">
                                 <div class="circle-iconn position-relative mx-auto">
                                     @if (!empty($treatment['gambar']))
-                                        <!-- If the treatment has a specific image path from API -->
                                         <img src="{{ asset($treatment['gambar']) }}" alt="{{ $treatment['paket_fluffy'] }}">
                                     @else
                                         <!-- Default image if the treatment doesn't have a specific image -->
@@ -211,14 +228,17 @@
                                     Handphone<span class="text-danger"> *</span></label> <input type="number"
                                     id="no_telfon" name="no_telfon" placeholder="Enter your last name" onblur="validate(2)">
                             </div>
-                            <div class="form-group col-sm-4 flex-column d-flex"> <label class="form-control-label px-3">Nama
-                                    Hewan<span class="text-danger"> *</span></label> <input type="text" id="nama_hewan"
-                                    name="nama_hewan" placeholder="Enter your last name" onblur="validate(2)"> </div>
+                            <div class="form-group col-sm-4 flex-column d-flex"> <label
+                                    class="form-control-label px-3">Nama
+                                    Hewan<span class="text-danger"> *</span></label> <input type="text"
+                                    id="nama_hewan" name="nama_hewan" placeholder="Enter your last name"
+                                    onblur="validate(2)"> </div>
                         </div>
                         <div class="row justify-content-between text-left">
                             <div class="form-group col-sm-8 flex-column d-flex"> <label
-                                    class="form-control-label px-3">Alamat<span class="text-danger"> *</span></label> <input
-                                    type="text" id="alamat" name="alamat" placeholder="" onblur="validate(3)">
+                                    class="form-control-label px-3">Alamat<span class="text-danger"> *</span></label>
+                                <input type="text" id="alamat" name="alamat" placeholder=""
+                                    onblur="validate(3)">
                             </div>
                             <div class="form-group col-sm-4 flex-column d-flex"> <label
                                     class="form-control-label px-3">Ciri Khusus Hewan<span class="text-danger">
@@ -282,8 +302,8 @@
                         </div>
 
                         <div class="row justify-content-end mt-4">
-                            <div class="form-group col-sm-6"><a href="stloginqr.html"><button type="submit"
-                                        class="btn-block btn-submit">Next</button></a> </div>
+                            <div class="form-group col-sm-6"><button type="submit"
+                                    class="btn-block btn-submit">Next</button></div>
                         </div>
                     </form>
                 </div>
@@ -374,9 +394,12 @@
 
 @push('js')
     <script>
+        var selectedTreatmentRadio;
+        var selectedServiceRadio;
+
         function updateTotal() {
-            var selectedTreatmentRadio = $('input[name=treatment_id]:checked');
-            var selectedServiceRadio = $('input[name=service_id]:checked');
+            selectedTreatmentRadio = $('input[name=treatment_id]:checked');
+            selectedServiceRadio = $('input[name=service_id]:checked');
 
 
             var treatmentPrice = selectedTreatmentRadio.length ? parseFloat(selectedTreatmentRadio.attr('data-harga')) : 0;
@@ -507,6 +530,12 @@
                     data: JSON.stringify(formData),
                     success: function(response) {
                         console.log('Booking successful:', response);
+                        var confirmationId = response.result.id;
+
+                        // Generate the URL using the route name and redirect
+                        var confirmationUrl = '{{ route('home.confirmation', ':id') }}';
+                        confirmationUrl = confirmationUrl.replace(':id', confirmationId);
+                        window.location.href = confirmationUrl;
                     },
                     error: function(error) {
                         // Handle error response

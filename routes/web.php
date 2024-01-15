@@ -20,3 +20,6 @@ Route::get('/', [HomeController::class, 'index'])->name('home.index');
 
 Route::get('/login', [AuthController::class, 'indexLogin'])->name('auth.login');
 
+Route::get('/confirmation-payment/{id}', [HomeController::class, 'confirmationPayment'])->name('home.confirmation');
+
+Route::get('/generate/{trx_id}', [HomeController::class, 'generate'])->name('home.generate');
