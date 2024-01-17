@@ -262,7 +262,7 @@
                         <div class="row justify-content-between text-left">
                             <div class="form-group col-sm-4 flex-column d-flex"> <label
                                     class="form-control-label px-3">Berat<span class="text-danger"> *</span></label>
-                                <input type="text" id="berat" name="berat" placeholder="Enter your first name"
+                                <input type="number" id="berat" name="berat" placeholder="Enter your first name" min=0
                                     onblur="validate(1)">
                             </div>
                             <div class="form-group col-sm-4 flex-column d-flex"> <label
@@ -275,8 +275,8 @@
                                 </select></div>
                             <div class="form-group col-sm-4 flex-column d-flex"> <label
                                     class="form-control-label px-3">Usia Kucing<span class="text-danger"> *</span></label>
-                                <input type="text" id="umur_kucing" name="umur_kucing"
-                                    placeholder="Enter your last name" onblur="validate(2)">
+                                <input type="number" id="umur_kucing" name="umur_kucing"
+                                    placeholder="Enter your last name" min=0 onblur="validate(2)">
                             </div>
                         </div>
                         <div class="text-left mb-2">Cat Treatment</div>
