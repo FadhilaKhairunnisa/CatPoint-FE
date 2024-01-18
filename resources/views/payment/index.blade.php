@@ -18,16 +18,16 @@
                     <form id="paymentForm">
                         <div>
                             <p class="text-right" id="selectedBookingTreatment">Cat Treatment <span class="ml-4">Rp
-                                    {{ $selectedTreatment['harga'] }}</span></p>
+                                </span></p>
                         </div>
                         <div>
                             <p class="text-right" id="selectedBookingService">Cat Service <span class="ml-4 ">Rp
-                                    {{ $selectedService['harga'] }}</span></p>
+                                </span></p>
                         </div>
                         <!-- Total Pembayaran -->
                         <div>
-                            <p class="text-right">Total Pembayaran <span class="ml-4 text-harga">Rp
-                                    {{ $selectedTreatment['harga'] + $selectedService['harga'] }}</span></p>
+                            <p class="text-right" id="totalHarga">Total Pembayaran <span class="ml-4 text-harga">Rp
+                                </span></p>
                         </div>
                         <hr>
                         <div>
@@ -79,143 +79,143 @@
 
 
 @push('js')
-<script>
-    $(document).ready(function() {
-        // Mengatur tombol "Next" menjadi nonaktif saat halaman dimuat
-        $(".btn-submit").prop("disabled", true);
+    <script>
+        $(document).ready(function() {
+            // Mengatur tombol "Next" menjadi nonaktif saat halaman dimuat
+            $(".btn-submit").prop("disabled", true);
 
-        // Mengaktifkan/menonaktifkan tombol "Next" berdasarkan status checkbox "agreeCheckbox"
-        $("#agreeCheckbox").change(function() {
-            var isChecked = $(this).prop("checked");
-            $(".btn-submit").prop("disabled", !isChecked);
-        });
+            // Mengaktifkan/menonaktifkan tombol "Next" berdasarkan status checkbox "agreeCheckbox"
+            $("#agreeCheckbox").change(function() {
+                var isChecked = $(this).prop("checked");
+                $(".btn-submit").prop("disabled", !isChecked);
+            });
 
-        // Menangani pengiriman data pembayaran saat form "paymentForm" disubmit
-        $("#paymentForm").submit(function(e) {
-            e.preventDefault();
-            if (!$("#agreeCheckbox").prop("checked")) {
-                alert("Please agree to the terms before proceeding.");
-            } else {
-                // Mengambil nilai treatmentValue dan serviceValue dari elemen terkait
-                var treatmentValue = parseFloat($("#selectedBookingTreatment span").text().replace("Rp",
-                    "").replace(/,/g, ""));
-                var serviceValue = parseFloat($("#selectedBookingService span").text().replace("Rp", "")
-                    .replace(/,/g, ""));
+            var hargaService = parseFloat(sessionStorage.getItem('harga_service')) || 0;
+            $("#selectedBookingService span").text(formatCurrency(hargaService));
 
-                // Memeriksa apakah treatmentValue atau serviceValue tidak valid
-                if (isNaN(treatmentValue) || isNaN(serviceValue)) {
-                    alert("Invalid treatment or service value. Please check and try again.");
-                    return;
+            // Menampilkan harga treatment saat pertama kali memuat halaman
+            var hargaTreatment = parseFloat(sessionStorage.getItem('harga_treatment')) || 0;
+            $("#selectedBookingTreatment span").text(formatCurrency(hargaTreatment));
+
+            // Menampilkan total pembayaran saat pertama kali memuat halaman
+            var totalPembayaran = parseFloat(sessionStorage.getItem('total_pembayaran')) || 0;
+            $("#totalHarga span").text(formatCurrency(totalPembayaran));
+
+
+            // Fungsi untuk memformat angka ke format mata uang
+            function formatCurrency(value) {
+                return "Rp " + value.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,');
+            }
+
+            // Menangani pengiriman data pembayaran saat form "paymentForm" disubmit
+            $("#paymentForm").submit(function(e) {
+                e.preventDefault();
+                if (!$("#agreeCheckbox").prop("checked")) {
+                    alert("Please agree to the terms before proceeding.");
+                } else {
+                    console.log('hit');
+                    // var hargaService = parseFloat(sessionStorage.getItem('harga_service'));
+                    // var hargaTreatment = parseFloat(sessionStorage.getItem('harga_treatment'));
+                    var totalPembayaran = parseFloat(sessionStorage.getItem('total_pembayaran'));
+
+                    // Memeriksa apakah nilai service, treatment, atau total tidak valid
+                    // if (isNaN(hargaService) || isNaN(hargaTreatment) || isNaN(totalPembayaran)) {
+                    //     alert("Invalid service, treatment, or total value. Please check and try again.");
+                    //     return;
+                    // }
+
+                    var bookingId = {{ $id ?? 0 }};
+
+                    // Menyiapkan data untuk dikirim melalui AJAX
+                    var formData = {
+                        total_harga: totalPembayaran,
+                        booking_id: bookingId
+                    };
+
+                    // Mengirim data pembayaran ke server melalui AJAX
+                    $.ajax({
+                        type: "POST",
+                        url: "http://149.129.244.179/api/order",
+                        headers: {
+                            Authorization: "Bearer " + localStorage.getItem('token')
+                        },
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(response) {
+                            console.log('sukses', response);
+
+                            sessionStorage.removeItem('harga_service');
+                            sessionStorage.removeItem('harga_treatment');
+                            sessionStorage.removeItem('total_pembayaran');
+
+                            var order_id = response.result.booking.id;
+
+                            console.log('orderid', order_id);
+                            $("#order_id").val(order_id);
+
+                            var totalHarga = response.result.total_harga;
+
+                            sessionStorage.setItem('total_harga', totalHarga);
+
+                            // Mengirim data invoice setelah mendapatkan order_id
+                            // postInvoiceData(bookingId, order_id);
+
+                            // Mengirim form generateQrForm untuk menampilkan QR code
+                            $("#generateQrForm").submit();
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
                 }
+            });
 
-                // Menghitung totalHarga dan mengambil bookingId dari server
-                var totalHarga = treatmentValue + serviceValue;
-                var bookingId = "{{ $selectedBooking['id'] }}";
+            // Menangani pengiriman data untuk menghasilkan QR code saat form "generateQrForm" disubmit
+            $("#generateQrForm").submit(function(e) {
+                e.preventDefault();
 
                 // Menyiapkan data untuk dikirim melalui AJAX
                 var formData = {
-                    total_harga: totalHarga,
-                    booking_id: bookingId
+                    order_id: $("#order_id").val()
                 };
 
-                // Mengirim data pembayaran ke server melalui AJAX
+                console.log('isi form', formData);
+
+                // Mengirim data untuk menghasilkan QR code ke server melalui AJAX
                 $.ajax({
                     type: "POST",
-                    url: "http://149.129.244.179/api/order",
+                    url: "http://149.129.244.179/api/generateqr",
+                    headers: {
+                        Authorization: "Bearer " + localStorage.getItem('token')
+                    },
                     contentType: 'application/json',
                     data: JSON.stringify(formData),
                     success: function(response) {
-                        console.log('sukses', response);
-                        var order_id = response.result.id;
+                        console.log('sukses generateqr', response.result);
 
-                        console.log('orderid', order_id);
-                        $("#order_id").val(order_id);
+                        var trx_id = response.result.transaction_id;
+                        var gross_amount = response.result.gross_amount;
+                        var expiry_time = response.result.expiry_time;
 
-                        // Mengirim data invoice setelah mendapatkan order_id
-                        postInvoiceData(bookingId, order_id);
+                        // Menyimpan data penting ke sessionStorage
+                        // sessionStorage.setItem('order_id', JSON.stringify(formData.order_id));
+                        // sessionStorage.setItem('gross_amount', JSON.stringify(gross_amount));
+                        // sessionStorage.setItem('expiry_time', JSON.stringify(expiry_time));
 
-                        // Mengirim form generateQrForm untuk menampilkan QR code
-                        $("#generateQrForm").submit();
+                        // Mengarahkan pengguna ke halaman untuk menampilkan QR code
+                        // if (trx_id) {
+                        //     var generateUrl = '{{ route('home.generate', ':id') }}';
+                        //     generateUrl = generateUrl.replace(':id', trx_id);
+                        //     window.location.href = generateUrl;
+                        // }
                     },
                     error: function(error) {
                         console.log(error);
                     }
                 });
-            }
-        });
-
-        // Menangani pengiriman data untuk menghasilkan QR code saat form "generateQrForm" disubmit
-        $("#generateQrForm").submit(function(e) {
-            e.preventDefault();
-
-            // Menyiapkan data untuk dikirim melalui AJAX
-            var formData = {
-                order_id: $("#order_id").val()
-            };
-
-            console.log('isi form', formData);
-
-            // Mengirim data untuk menghasilkan QR code ke server melalui AJAX
-            $.ajax({
-                type: "POST",
-                url: "http://149.129.244.179/api/generateqr",
-                contentType: 'application/json',
-                data: JSON.stringify(formData),
-                success: function(response) {
-                    console.log('sukses generateqr', response.result);
-
-                    var trx_id = response.result.transaction_id;
-                    var gross_amount = response.result.gross_amount;
-                    var expiry_time = response.result.expiry_time;
-
-                    // Menyimpan data penting ke sessionStorage
-                    sessionStorage.setItem('order_id', JSON.stringify(formData.order_id));
-                    sessionStorage.setItem('gross_amount', JSON.stringify(gross_amount));
-                    sessionStorage.setItem('expiry_time', JSON.stringify(expiry_time));
-
-                    // Mengarahkan pengguna ke halaman untuk menampilkan QR code
-                    if (trx_id) {
-                        var generateUrl = '{{ route('home.generate', ':id') }}';
-                        generateUrl = generateUrl.replace(':id', trx_id);
-                        window.location.href = generateUrl;
-                    }
-                },
-                error: function(error) {
-                    console.log(error);
-                }
             });
+
+
         });
-
-        // Mengirim data invoice ke server
-        function postInvoiceData(bookingId, orderId) {
-            var invoiceData = {
-                status_pembayaran: "PENDING",
-                booking_id: bookingId,
-                order_id: orderId
-            };
-
-            // Mengirim data invoice ke server melalui AJAX
-            $.ajax({
-                type: "POST",
-                url: "http://149.129.244.179/api/invoice",
-                contentType: 'application/json',
-                data: JSON.stringify(invoiceData),
-                success: function(response) {
-                    console.log('sukses invoice', response);
-                    // Menangani keberhasilan, jika diperlukan
-
-                    var invoice_id = response.result.id;
-
-                    // Menyimpan invoice_id ke sessionStorage
-                    sessionStorage.setItem('invoice_id', JSON.stringify(invoice_id));
-                },
-                error: function(error) {
-                    console.log(error);
-                    // Menangani kesalahan, jika diperlukan
-                }
-            });
-        }
-
-    });
-</script>
+    </script>
 @endpush

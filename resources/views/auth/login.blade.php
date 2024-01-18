@@ -30,24 +30,23 @@
 
                                         <div class="form-outline mb-4">
                                             <label class="form-label" for="form2Example17">Masukan Email</label>
-                                            <input type="email" id="form2Example17"
-                                                class="form-control form-control-lg" />
+                                            <input type="email" id="email" class="form-control form-control-lg" />
                                         </div>
 
                                         <div class="form-outline mb-4">
                                             <label class="form-label" for="form2Example27">Password</label>
-                                            <input type="password" id="form2Example27"
-                                                class="form-control form-control-lg" />
+                                            <input type="password" id="password" class="form-control form-control-lg" />
                                         </div>
 
                                         <div class="pt-1 mb-4">
-                                            <a href="stlogin.html"><button class="btn-submit btn-lg btn-block"
-                                                    type="button">Login</button></a>
+                                            <button class="btn-submit btn-lg btn-block" type="button"
+                                                onclick="handleLogin()">Login</button>
                                         </div>
 
                                         <a class="small text-muted" href="#!">Lupa Password?</a>
                                         <p class="mb-5 pb-lg-2" style="color: #393f81;">Don't have an account? <a
-                                                href="#!" style="color: #393f81;">Register here</a></p>
+                                                href="{{ route('auth.register') }}" style="color: #393f81;">Register
+                                                here</a></p>
 
                                     </form>
 
@@ -70,3 +69,42 @@
         </svg>
     </div>
 @endsection
+
+@push('js')
+    <script src="https://cdn.jsdelivr.net/npm/js-cookie@3.0.1/dist/js.cookie.min.js"></script>
+    <script>
+        function handleLogin() {
+            var email = $("#email").val();
+            var password = $("#password").val();
+            var csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+            var formData = {
+                email: email,
+                password: password,
+            };
+
+            $.ajax({
+                type: "POST",
+                
+                // url: "{{ route('auth.login.process') }}",
+                url: "http://149.129.244.179/api/login",
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
+                success: function(response) {
+                    console.log('Login berhasil', response);
+
+                    Cookies.set('token', response.token, { expires: 1 }); // Expires in 7 days
+
+                    // Menyimpan token di localStorage
+                    localStorage.setItem('token', response.token);
+
+                    // Redirect ke halaman tertentu setelah berhasil login
+                    window.location.href = "{{ route('home.index') }}";
+                },
+                error: function(error) {
+                    console.log('Login gagal', error);
+                }
+            });
+        }
+    </script>
+@endpush

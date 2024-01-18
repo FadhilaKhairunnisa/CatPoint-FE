@@ -25,7 +25,7 @@
                     <a class="nav-link" href="#contact">Contact</a>
                 </li>
             </ul>
-            <div class="user_option">
+            <div class="user_option" id="loggedOutContent">
                 <a href="{{ route('auth.login') }}" class="order_online">
                     Login
                 </a>

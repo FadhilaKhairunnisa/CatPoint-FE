@@ -12,6 +12,8 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
     <link rel="shortcut icon" href="images/cat-logo.png" type="">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
     <title> @yield('title') </title>
 

@@ -20,6 +20,16 @@ return [
         // qr
         'post_qr' => $endpoint . 'api/generateqr',
 
+
+
+
+        // Authentication
+        'register' => $endpoint . 'api/register',
+        'login' => $endpoint . 'api/login',
+
+        'headers' => [
+            'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+        ],
     ],
     'production' => [
         // Uncomment and update the following lines with your production endpoints

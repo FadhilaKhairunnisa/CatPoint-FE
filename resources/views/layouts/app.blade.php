@@ -12,6 +12,8 @@
     <meta name="description" content="" />
     <meta name="author" content="" />
     <link rel="shortcut icon" href="images/cat-logo.png" type="">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
 
     <title> @yield('title') </title>
 
@@ -33,19 +35,38 @@
         </header>
         <!-- end header section -->
 
-    
 
-    @yield('content')
 
-    <!-- footer section -->
-    <footer class="footer_section">
-        @include('layouts.footer')
-    </footer>
-    <!-- footer section -->
+        @yield('content')
 
-    @include('layouts.additional.script')
+        <!-- footer section -->
+        <footer class="footer_section">
+            @include('layouts.footer')
+        </footer>
+        <!-- footer section -->
 
-    @stack('js')
+        @include('layouts.additional.script')
+
+        @stack('js')
+        <script>
+            function handleLoginStatus() {
+                const authToken = localStorage.getItem('token');
+                const loggedInContent = document.getElementById('loggedInContent');
+                const loggedOutContent = document.getElementById('loggedOutContent');
+
+                if (authToken) {
+                    loggedInContent.style.display = 'block';
+                    loggedOutContent.style.display = 'none';
+                } else {
+                    loggedInContent.style.display = 'none';
+                    loggedOutContent.style.display = 'block';
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                handleLoginStatus();
+            });
+        </script>
 
 
 </body>

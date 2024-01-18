@@ -21,13 +21,20 @@ class HomeController extends Controller
         $apiConfigTreatment = Config::get("api." . app()->environment() . ".get_treatment");
 
         // Mendapatkan data testimoni dari API
-        $resTestimoni = json_decode(file_get_contents($apiConfigTestimoni), true);
+        $resTestimoni = Http::withHeaders([
+            'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+        ])->get($apiConfigTestimoni)->json();
 
         // Mendapatkan data layanan dari API
-        $resService = json_decode(file_get_contents($apiConfigService), true);
+        $resService = Http::withHeaders([
+            'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+        ])->get($apiConfigService)->json();
+
 
         // Mendapatkan data perawatan dari API
-        $resTreatment = json_decode(file_get_contents($apiConfigTreatment), true);
+        $resTreatment = Http::withHeaders([
+            'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+        ])->get($apiConfigTreatment)->json();
 
         // Menampilkan halaman utama dengan data testimoni, layanan, dan perawatan
         return view('landing.index', ['resTestimoni' => $resTestimoni, 'resService' => $resService, 'resTreatment' => $resTreatment]);
@@ -36,54 +43,73 @@ class HomeController extends Controller
     // Konfirmasi pembayaran dengan menampilkan detail layanan dan perawatan yang dipilih
     public function confirmationPayment($id)
     {
-        // Mendapatkan konfigurasi API untuk layanan
-        $apiConfigService = Config::get("api." . app()->environment() . ".get_service");
+        // // Mendapatkan konfigurasi API untuk layanan
+        // $apiConfigService = Config::get("api." . app()->environment() . ".get_service");
 
-        // Mendapatkan konfigurasi API untuk perawatan
-        $apiConfigTreatment = Config::get("api." . app()->environment() . ".get_treatment");
+        // // Mendapatkan konfigurasi API untuk perawatan
+        // $apiConfigTreatment = Config::get("api." . app()->environment() . ".get_treatment");
 
-        // Mendapatkan konfigurasi API untuk pemesanan
-        $apiConfigBooking = Config::get("api." . app()->environment() . ".get_booking");
+        // // Mendapatkan konfigurasi API untuk pemesanan
+        // $apiConfigBooking = Config::get("api." . app()->environment() . ".get_booking");
 
-        // Mendapatkan data layanan dari API
-        $resService = json_decode(file_get_contents($apiConfigService), true);
+        // // Mendapatkan data layanan dari API dengan menyertakan header Authorization
+        // $resService = Http::withHeaders([
+        //     'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+        // ])->get($apiConfigService)->json();
 
-        // Mendapatkan data perawatan dari API
-        $resTreatment = json_decode(file_get_contents($apiConfigTreatment), true);
+        // // Mendapatkan data perawatan dari API dengan menyertakan header Authorization
+        // $resTreatment = Http::withHeaders([
+        //     'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+        // ])->get($apiConfigTreatment)->json();
 
-        // Mendapatkan data pemesanan dari API
-        $resBooking = json_decode(file_get_contents($apiConfigBooking), true);
+        // // Mendapatkan data pemesanan dari API dengan menyertakan header Authorization
 
-        // Memfilter pemesanan berdasarkan ID yang dipilih
-        $selectedBooking = array_filter($resBooking['result'], function ($booking) use ($id) {
-            return $booking['id'] == $id;
-        });
+        // $resBooking = Http::withHeaders([
+        //     'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+        // ])->get($apiConfigBooking)->json();
 
-        // Mengambil pemesanan yang dipilih
-        $selectedBooking = reset($selectedBooking);
+        // // dd($resBooking);
 
-        // Memfilter perawatan berdasarkan pemesanan yang dipilih
-        $selectedTreatment = array_filter($resTreatment['result'], function ($treatment) use ($selectedBooking) {
-            return $treatment['id'] == $selectedBooking['treatment_id'];
-        });
 
-        // Memfilter layanan berdasarkan pemesanan yang dipilih
-        $selectedService = array_filter($resService['result'], function ($service) use ($selectedBooking) {
-            return $service['id'] == $selectedBooking['service_id'];
-        });
 
-        // Mengambil perawatan yang dipilih
-        $selectedTreatment = reset($selectedTreatment);
 
-        // Mengambil layanan yang dipilih
-        $selectedService = reset($selectedService);
+        // // $resBooking = json_decode(($resBooking));
+
+
+        // // Memfilter pemesanan berdasarkan ID yang dipilih
+        // $selectedBooking = array_filter($resBooking['result'], function ($booking) use ($id) {
+        //     return $booking['id'] == $id;
+        // });
+
+        // // Mengambil pemesanan yang dipilih
+        // $selectedBooking = reset($selectedBooking);
+
+        // // Memfilter perawatan berdasarkan pemesanan yang dipilih
+        // $selectedTreatment = array_filter($resTreatment['result'], function ($treatment) use ($selectedBooking) {
+        //     return isset($selectedBooking['treatment']) && $treatment['id'] == $selectedBooking['treatment']['id'];
+        // });
+
+
+        // // Memfilter layanan berdasarkan pemesanan yang dipilih
+
+        // $selectedService = array_filter($resService['result'], function ($service) use ($selectedBooking) {
+        //     return isset($selectedBooking['treatment']) && $service['id'] == $selectedBooking['service']['id'];
+        // });
+
+
+        // // Mengambil perawatan yang dipilih
+        // $selectedTreatment = reset($selectedTreatment);
+
+        // // Mengambil layanan yang dipilih
+        // $selectedService = reset($selectedService);
 
         // Menampilkan halaman konfirmasi pembayaran dengan detail layanan dan perawatan yang dipilih
-        return view('payment.index', [
-            'selectedBooking' => $selectedBooking,
-            'selectedTreatment' => $selectedTreatment,
-            'selectedService' => $selectedService,
-        ]);
+        // return view('payment.index', [
+        //     'selectedBooking' => $selectedBooking,
+        //     'selectedTreatment' => $selectedTreatment,
+        //     'selectedService' => $selectedService,
+        // ]);
+        return view('payment.index', ['id' => $id]);
     }
 
     // Menghasilkan gambar QR Code berdasarkan ID transaksi
@@ -109,4 +135,3 @@ class HomeController extends Controller
         }
     }
 }
-
