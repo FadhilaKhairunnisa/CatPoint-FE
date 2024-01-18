@@ -262,8 +262,8 @@
                         <div class="row justify-content-between text-left">
                             <div class="form-group col-sm-4 flex-column d-flex"> <label
                                     class="form-control-label px-3">Berat<span class="text-danger"> *</span></label>
-                                <input type="number" id="berat" name="berat" placeholder="Enter your first name"
-                                    min=0 onblur="validate(1)">
+                                <input type="number" id="berat" name="berat" placeholder="Enter your first name" min=0
+                                    onblur="validate(1)">
                             </div>
                             <div class="form-group col-sm-4 flex-column d-flex"> <label
                                     class="form-control-label px-3">Jenis Kelamin<span class="text-danger">
@@ -394,80 +394,62 @@
 
 @push('js')
     <script>
-        // Inisialisasi variabel untuk treatment dan service yang dipilih
         var selectedTreatmentRadio;
         var selectedServiceRadio;
 
-        // Fungsi untuk mengupdate total harga
         function updateTotal() {
-            // Mendapatkan radio button treatment yang dipilih
             selectedTreatmentRadio = $('input[name=treatment_id]:checked');
-            // Mendapatkan radio button service yang dipilih
             selectedServiceRadio = $('input[name=service_id]:checked');
 
-            // Menghitung harga treatment yang dipilih, default 0 jika tidak ada yang dipilih
-            var treatmentPrice = selectedTreatmentRadio.length ? parseFloat(selectedTreatmentRadio.attr('data-harga')) : 0;
-            // Menghitung harga service yang dipilih, default 0 jika tidak ada yang dipilih
-            var servicePrice = selectedServiceRadio.length ? parseFloat(selectedServiceRadio.attr('data-harga')) : 0;
 
-            // Menampilkan harga treatment dan service di console
+            var treatmentPrice = selectedTreatmentRadio.length ? parseFloat(selectedTreatmentRadio.attr('data-harga')) : 0;
+            var servicePrice = selectedServiceRadio.length ? parseFloat(selectedServiceRadio.attr('data-harga')) : 0;
             console.log('treatmentPrice', treatmentPrice);
             console.log('servicePrice', servicePrice);
 
-            // Menghitung total harga
             var totalAmount = treatmentPrice + servicePrice;
-            // Menampilkan total harga di console
             console.log('cek', totalAmount);
 
-            // Mengupdate tampilan total harga pada halaman
             $('#totalAmount').text('Rp ' + totalAmount.toFixed(2));
         }
 
-        // Fungsi untuk mendapatkan harga treatment berdasarkan ID treatment
+
+
+
         function getTreatmentPrice(treatmentId) {
             var treatments = data.result;
-            // Menampilkan data treatment yang dipilih di console
             console.log('treatment data ', treatment);
-            // Mencari treatment berdasarkan ID
             var selectedTreatment = treatments.find(function(treatment) {
                 return treatment.id == treatmentId;
             });
 
-            // Mengembalikan harga treatment, default 0 jika tidak ditemukan
             return selectedTreatment ? parseFloat(selectedTreatment.harga) : 0;
         }
 
-        // Fungsi untuk mendapatkan harga service berdasarkan ID service
         function getServicePrice(serviceId) {
+
             var services = data.result;
-            // Menampilkan data service yang dipilih di console
             console.log('services data ', services);
 
-            // Mencari service berdasarkan ID
             var selectedService = services.find(function(service) {
                 return service.id == serviceId;
             });
 
-            // Mengembalikan harga service, default 0 jika tidak ditemukan
             return selectedService ? parseFloat(selectedService.harga) : 0;
         }
 
-        // Event handler untuk perubahan pada radio button treatment dan service
         $('input[name=treatment_id], input[name=service_id]').change(function() {
             console.log('hit');
-            // Memanggil fungsi updateTotal() ketika terjadi perubahan
+
             updateTotal();
         });
-
-        // Event handler ketika halaman telah selesai dimuat
         $(document).ready(function() {
-            // Mengambil data treatment melalui AJAX
+
             $.ajax({
                 url: 'http://149.129.244.179/api/treatment',
                 method: 'GET',
                 success: function(data) {
                     var catTreatmentOptions = $('#catTreatmentOptions');
-                    // Menambahkan radio button treatment berdasarkan data yang diterima
                     $.each(data.result, function(index, option) {
                         catTreatmentOptions.append('<input id="catTreatment-' + index +
                             '" class="substituted" type="radio" name="treatment_id" value="' +
@@ -475,6 +457,7 @@
                             '" onchange="updateTotal()" />' +
                             '<label for="catTreatment-' + index + '">' + option.paket +
                             '</label>');
+
                     });
                 },
                 error: function(error) {
@@ -482,13 +465,11 @@
                 }
             });
 
-            // Mengambil data service melalui AJAX
             $.ajax({
                 url: 'http://149.129.244.179/api/service',
                 method: 'GET',
                 success: function(data) {
                     var catServiceOptions = $('#catServiceOptions');
-                    // Menambahkan radio button service berdasarkan data yang diterima
                     $.each(data.result, function(index, option) {
                         console.log('data service', option);
 
@@ -498,6 +479,7 @@
                             '" onchange="updateTotal()" />' +
                             '<label for="catService-' + index + '">' + option.paket_fluffy +
                             '</label>');
+
                     });
                 },
                 error: function(error) {
@@ -505,11 +487,12 @@
                 }
             });
 
-            // Event handler untuk submit form
+
+
+            // Form submission
             $('form.form-card').submit(function(event) {
                 event.preventDefault();
 
-                // Fungsi untuk memformat tanggal
                 var formatDate = function(date) {
                     var d = new Date(date);
                     var month = ('0' + (d.getMonth() + 1)).slice(-2);
@@ -522,7 +505,6 @@
                     return [year, month, day].join('-') + ' ' + [hours, minutes, seconds].join(':');
                 };
 
-                // Mengambil data form
                 var formData = {
                     nama_pemilik: $('#nama_pemilik').val(),
                     no_telfon: $('#no_telfon').val(),
@@ -539,10 +521,8 @@
                     service_id: selectedServiceRadio.val()
                 };
 
-                // Menampilkan data form di console
                 console.log('isi', formData)
 
-                // Melakukan pengiriman data form melalui AJAX
                 $.ajax({
                     url: 'http://149.129.244.179/api/booking',
                     method: 'POST',
@@ -552,7 +532,7 @@
                         console.log('Booking successful:', response);
                         var confirmationId = response.result.id;
 
-                        // Generate URL menggunakan route name dan redirect
+                        // Generate the URL using the route name and redirect
                         var confirmationUrl = '{{ route('home.confirmation', ':id') }}';
                         confirmationUrl = confirmationUrl.replace(':id', confirmationId);
                         window.location.href = confirmationUrl;
