@@ -16,10 +16,23 @@ class authjwt
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
+    // public function handle($request, Closure $next)
+    // {
+    //     if (empty($_COOKIE['token_auth'])) {
+    //         return redirect()->route('auth.login');
+    //     }
+
+    //     return $next($request);
+    // }
     public function handle($request, Closure $next)
     {
-        if (empty($_COOKIE['token_auth'])) {
-            return redirect()->route('auth.login'); // Ganti 'login' dengan nama rute halaman login Anda
+        // Mengambil nilai dari cookie 'token_auth' menggunakan helper function
+        $token = isset($_COOKIE['token_auth']) ? $_COOKIE['token_auth'] : null;
+
+
+        if ($token == null) {
+            // dd($token);
+            return redirect()->route('auth.login');
         }
 
         return $next($request);
