@@ -29,6 +29,7 @@ Route::middleware(['authjwt'])->group(function () {
     Route::get('/generate/{trx_id}', [HomeController::class, 'generate'])->name('home.generate');
     Route::get('/success/{invoice_id}', [HomeController::class, 'success'])->name('home.success');
     Route::get('/invoice/{invoice_id}', [HomeController::class, 'invoice'])->name('home.invoice');
+    
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/jenispaket', [AdminController::class, 'jenispaket']);
     Route::get('/dashboard/pesanan', [AdminController::class, 'pesanan']);

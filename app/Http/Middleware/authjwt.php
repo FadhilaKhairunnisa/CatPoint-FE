@@ -26,19 +26,14 @@ class authjwt
     // }
     public function handle($request, Closure $next)
     {
+        // Mengambil nilai dari cookie 'token_auth' menggunakan helper function
         $token = isset($_COOKIE['token_auth']) ? $_COOKIE['token_auth'] : null;
 
-        if (empty($token)) {
+
+        if ($token == null) {
+            // dd($token);
             return redirect()->route('auth.login');
         }
-
-        $redirectCount = $request->session()->get('redirect_count', 0);
-
-        if ($redirectCount >= 3) {
-            return response('Too many redirects', 500);
-        }
-
-        $request->session()->put('redirect_count', $redirectCount + 1);
 
         return $next($request);
     }
