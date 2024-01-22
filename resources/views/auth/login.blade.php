@@ -85,26 +85,66 @@
 
             $.ajax({
                 type: "POST",
-                
-                // url: "{{ route('auth.login.process') }}",
-                url: "http://149.129.244.179/api/login",
+
+                url: "{{ route('auth.login.process') }}",
+                // url: "http://149.129.244.179/api/login",
+                headers: {
+                    'X-CSRF-TOKEN': csrfToken // Add CSRF token to headers
+                },
                 contentType: 'application/json',
                 data: JSON.stringify(formData),
                 success: function(response) {
                     console.log('Login berhasil', response);
 
-                    Cookies.set('token', response.token, { expires: 1 }); // Expires in 7 days
+                    // Menyimpan token di localStorage dengan waktu kadaluwarsa 30 menit
+                    var expirationTime = new Date();
+                    expirationTime.setMinutes(expirationTime.getMinutes() + 30); // Tambahkan 30 menit
 
-                    // Menyimpan token di localStorage
-                    localStorage.setItem('token', response.token);
+                    var token = response.token;
 
+
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('tokenExpiration', expirationTime
+                        .getTime()); // Simpan waktu kadaluwarsa
+
+                    // Menyimpan token di cookie dengan waktu kadaluwarsa 30 menit
+
+
+                    Cookies.set('token_auth', token, {
+                        expires: 30 / (24 * 60) // Kadaluwarsa setelah 30 menit
+                    });
+
+                    console.log("LocalStorage Token:", localStorage.getItem('token'));
+
+                    // Cek nilai token di cookies
+                    console.log("Cookies Token:", Cookies.get('token_auth'));
                     // Redirect ke halaman tertentu setelah berhasil login
                     window.location.href = "{{ route('home.index') }}";
+
+                    // Set timeout untuk memeriksa dan hapus token setelah 30 menit
+                    setTimeout(function() {
+                        if (isTokenExpired()) {
+                            // Token telah kadaluwarsa, hapus dari localStorage dan cookies
+                            localStorage.removeItem('token');
+                            localStorage.removeItem('tokenExpiration');
+                            Cookies.remove('token_auth');
+                        }
+                    }, 30 * 60 * 1000); // Setelah 30 menit
                 },
                 error: function(error) {
                     console.log('Login gagal', error);
                 }
             });
+
+            function isTokenExpired() {
+                var expirationTime = localStorage.getItem('tokenExpiration');
+                if (!expirationTime) {
+                    return true; // Token tidak ada atau waktu kadaluwarsa tidak diset
+                }
+
+                // Bandingkan waktu saat ini dengan waktu kadaluwarsa
+                return new Date().getTime() > parseInt(expirationTime, 10);
+            }
         }
     </script>
 @endpush

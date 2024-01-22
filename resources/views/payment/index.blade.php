@@ -48,9 +48,9 @@
                         </div>
                     </form>
 
-                    <form id="generateQrForm" style="display: none;">
+                    {{-- <form id="generateQrForm" style="display: none;">
                         <input type="hidden" name="order_id" id="order_id">
-                    </form>
+                    </form> --}}
                 </div>
             </div>
         </div>
@@ -113,10 +113,59 @@
                 if (!$("#agreeCheckbox").prop("checked")) {
                     alert("Please agree to the terms before proceeding.");
                 } else {
-                    console.log('hit');
                     // var hargaService = parseFloat(sessionStorage.getItem('harga_service'));
                     // var hargaTreatment = parseFloat(sessionStorage.getItem('harga_treatment'));
-                    var totalPembayaran = parseFloat(sessionStorage.getItem('total_pembayaran'));
+                    // var totalPembayaran = parseFloat(sessionStorage.getItem('total_pembayaran'));
+                    var orderId = parseInt(sessionStorage.getItem('order_id'));
+
+
+                    // Menyiapkan data untuk dikirim melalui AJAX
+                    var formData = {
+                        order_id: orderId
+                    };
+
+                    console.log('isi form', formData);
+
+                    // Mengirim data untuk menghasilkan QR code ke server melalui AJAX
+                    $.ajax({
+                        type: "POST",
+                        url: "http://149.129.244.179/api/generateqr",
+                        headers: {
+                            Authorization: "Bearer " + localStorage.getItem('token')
+                        },
+                        contentType: 'application/json',
+                        data: JSON.stringify(formData),
+                        success: function(response) {
+                            sessionStorage.removeItem('harga_service');
+                            sessionStorage.removeItem('harga_treatment');
+                            sessionStorage.removeItem('total_pembayaran');
+                            sessionStorage.removeItem('order_id');
+                            console.log('sukses generateqr', response.result);
+
+                            var trx_id = response.result.transaction_id;
+                            var order_id = response.result.order_id;
+                            var invoice_id = response.result.invoice_id;
+                            var gross_amount = response.result.gross_amount;
+                            var expiry_time = response.result.expiry_time;
+
+                            // Menyimpan data penting ke sessionStorage
+                            sessionStorage.setItem('invoice_id', JSON.stringify(invoice_id));
+                            sessionStorage.setItem('order_id', JSON.stringify(order_id));
+                            sessionStorage.setItem('gross_amount', JSON.stringify(
+                            gross_amount));
+                            sessionStorage.setItem('expiry_time', JSON.stringify(expiry_time));
+
+                            // Mengarahkan pengguna ke halaman untuk menampilkan QR code
+                            if (trx_id) {
+                                var generateUrl = '{{ route('home.generate', ':id') }}';
+                                generateUrl = generateUrl.replace(':id', trx_id);
+                                window.location.href = generateUrl;
+                            }
+                        },
+                        error: function(error) {
+                            console.log(error);
+                        }
+                    });
 
                     // Memeriksa apakah nilai service, treatment, atau total tidak valid
                     // if (isNaN(hargaService) || isNaN(hargaTreatment) || isNaN(totalPembayaran)) {
@@ -124,96 +173,58 @@
                     //     return;
                     // }
 
-                    var bookingId = {{ $id ?? 0 }};
+                    // var bookingId = parseInt("{{ $id }}", 10);
 
-                    // Menyiapkan data untuk dikirim melalui AJAX
-                    var formData = {
-                        total_harga: totalPembayaran,
-                        booking_id: bookingId
-                    };
+                    // console.log(bookingId);
 
-                    // Mengirim data pembayaran ke server melalui AJAX
-                    $.ajax({
-                        type: "POST",
-                        url: "http://149.129.244.179/api/order",
-                        headers: {
-                            Authorization: "Bearer " + localStorage.getItem('token')
-                        },
-                        contentType: 'application/json',
-                        data: JSON.stringify(formData),
-                        success: function(response) {
-                            console.log('sukses', response);
+                    // // Menyiapkan data untuk dikirim melalui AJAX
+                    // var formData = {
+                    //     total_harga: totalPembayaran,
+                    //     booking_id: orderId
+                    // };
 
-                            sessionStorage.removeItem('harga_service');
-                            sessionStorage.removeItem('harga_treatment');
-                            sessionStorage.removeItem('total_pembayaran');
+                    // // Mengirim data pembayaran ke server melalui AJAX
+                    // $.ajax({
+                    //     type: "POST",
+                    //     url: "http://149.129.244.179/api/order",
+                    //     headers: {
+                    //         Authorization: "Bearer " + localStorage.getItem('token')
+                    //     },
+                    //     contentType: 'application/json',
+                    //     data: JSON.stringify(formData),
+                    //     success: function(response) {
+                    //         console.log('sukses', response);
 
-                            var order_id = response.result.booking.id;
+                    //         sessionStorage.removeItem('harga_service');
+                    //         sessionStorage.removeItem('harga_treatment');
+                    //         sessionStorage.removeItem('total_pembayaran');
 
-                            console.log('orderid', order_id);
-                            $("#order_id").val(order_id);
+                    //         var order_id = response.result.id;
 
-                            var totalHarga = response.result.total_harga;
+                    //         console.log('orderid', order_id);
+                    //         $("#order_id").val(order_id);
 
-                            sessionStorage.setItem('total_harga', totalHarga);
+                    //         var totalHarga = response.result.total_harga;
 
-                            // Mengirim data invoice setelah mendapatkan order_id
-                            // postInvoiceData(bookingId, order_id);
+                    //         sessionStorage.setItem('total_harga', totalHarga);
+                    // console.log('hit order');
 
-                            // Mengirim form generateQrForm untuk menampilkan QR code
-                            $("#generateQrForm").submit();
-                        },
-                        error: function(error) {
-                            console.log(error);
-                        }
-                    });
+
+                    //         // Mengirim data invoice setelah mendapatkan order_id
+                    //         // postInvoiceData(bookingId, order_id);
+
+                    //         // Mengirim form generateQrForm untuk menampilkan QR code
+                    //         $("#generateQrForm").submit();
+                    //     },
+                    //     error: function(error) {
+                    //         console.log(error);
+                    //     }
+                    // });
                 }
             });
 
             // Menangani pengiriman data untuk menghasilkan QR code saat form "generateQrForm" disubmit
-            $("#generateQrForm").submit(function(e) {
-                e.preventDefault();
 
-                // Menyiapkan data untuk dikirim melalui AJAX
-                var formData = {
-                    order_id: $("#order_id").val()
-                };
-
-                console.log('isi form', formData);
-
-                // Mengirim data untuk menghasilkan QR code ke server melalui AJAX
-                $.ajax({
-                    type: "POST",
-                    url: "http://149.129.244.179/api/generateqr",
-                    headers: {
-                        Authorization: "Bearer " + localStorage.getItem('token')
-                    },
-                    contentType: 'application/json',
-                    data: JSON.stringify(formData),
-                    success: function(response) {
-                        console.log('sukses generateqr', response.result);
-
-                        var trx_id = response.result.transaction_id;
-                        var gross_amount = response.result.gross_amount;
-                        var expiry_time = response.result.expiry_time;
-
-                        // Menyimpan data penting ke sessionStorage
-                        // sessionStorage.setItem('order_id', JSON.stringify(formData.order_id));
-                        // sessionStorage.setItem('gross_amount', JSON.stringify(gross_amount));
-                        // sessionStorage.setItem('expiry_time', JSON.stringify(expiry_time));
-
-                        // Mengarahkan pengguna ke halaman untuk menampilkan QR code
-                        // if (trx_id) {
-                        //     var generateUrl = '{{ route('home.generate', ':id') }}';
-                        //     generateUrl = generateUrl.replace(':id', trx_id);
-                        //     window.location.href = generateUrl;
-                        // }
-                    },
-                    error: function(error) {
-                        console.log(error);
-                    }
-                });
-            });
 
 
         });

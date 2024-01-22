@@ -22,18 +22,17 @@ class HomeController extends Controller
 
         // Mendapatkan data testimoni dari API
         $resTestimoni = Http::withHeaders([
-            'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+            'Authorization' => 'Bearer ' . (isset($_COOKIE['token_auth']) ? $_COOKIE['token_auth'] : ''),
         ])->get($apiConfigTestimoni)->json();
 
         // Mendapatkan data layanan dari API
         $resService = Http::withHeaders([
-            'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+            'Authorization' => 'Bearer ' . (isset($_COOKIE['token_auth']) ? $_COOKIE['token_auth'] : ''),
         ])->get($apiConfigService)->json();
-
 
         // Mendapatkan data perawatan dari API
         $resTreatment = Http::withHeaders([
-            'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+            'Authorization' => 'Bearer ' . (isset($_COOKIE['token_auth']) ? $_COOKIE['token_auth'] : ''),
         ])->get($apiConfigTreatment)->json();
 
         // Menampilkan halaman utama dengan data testimoni, layanan, dan perawatan
@@ -133,5 +132,17 @@ class HomeController extends Controller
             // Tangani kesalahan jika panggilan API tidak berhasil
             return response()->json(['error' => 'Gagal mendapatkan data QR Code'], $response->status());
         }
+    }
+
+    public function success($invoice_id)
+    {
+
+        return view('invoice.success', compact('invoice_id'));
+    }
+
+    public function invoice($invoice_id)
+    {
+
+        return view('invoice.index');
     }
 }

@@ -53,7 +53,7 @@
 @push('js')
     <script>
         // Mengambil nilai invoiceId dari sessionStorage
-        var invoiceId = sessionStorage.getItem('invoiceId');
+        var invoiceId = sessionStorage.getItem('invoice_id');
         // Mengambil nilai grossAmount dari sessionStorage
         var grossAmount = sessionStorage.getItem('gross_amount');
         // Mengambil nilai expiryTime dari sessionStorage
@@ -96,76 +96,71 @@
             return formattedDate;
         }
 
-        function getInvoiceData() {
+
+
+
+
+
+        function checkTransactionStatus() {
+            // Get order_id and invoice_id from sessionStorage
+            var order_id = sessionStorage.getItem('order_id');
+            var invoice_id = sessionStorage.getItem('invoice_id');
+
+            // Remove double quotes from order_id and invoice_id if they exist
+            order_id = order_id ? order_id.replace(/"/g, '') : '';
+            invoice_id = invoice_id ? invoice_id.replace(/"/g, '') : '';
+
+            console.log('order_id', order_id);
+            console.log('invoice_id', invoice_id);
+
+            var formData = {
+                order_id: order_id,
+                invoice_id: invoice_id,
+
+            };
+
+
+            // AJAX request to check status
             $.ajax({
-                url: 'http://149.129.244.179/api/invoice',
+                type: "POST",
+                url: "http://149.129.244.179/api/checkstatus",
                 headers: {
                     Authorization: "Bearer " + localStorage.getItem('token')
                 },
-                method: 'GET',
-                success: function(response) {
-                    // Cek apakah invoice_id sesuai dengan invoiceId dari session storage
-                    var matchingInvoice = response.result.find(function(invoice) {
-                        return invoice.invoice_id == invoiceId;
-                    });
-
-                    if (matchingInvoice) {
-                        // Jika sesuai, perbarui status pembayaran menjadi SUKSES
-                        updatePaymentStatus(matchingInvoice.booking_id, matchingInvoice.order_id);
-                    }
-                },
-                error: function(error) {
-                    console.error(error);
-                }
-            });
-        }
-
-        // Fungsi untuk mengupdate status pembayaran menjadi SUKSES
-        function updatePaymentStatus(bookingId, orderId) {
-            $.ajax({
-                url: 'http://149.129.244.179/api/invoice',
-                headers: {
-                    Authorization: "Bearer " + localStorage.getItem('token')
-                },
-                method: 'PUT',
                 contentType: 'application/json',
-                data: JSON.stringify({
-                    booking_id: bookingId,
-                    order_id: orderId,
-                    status_pembayaran: 'SUKSES'
-                }),
+                data: JSON.stringify(formData),
                 success: function(response) {
-                    console.log('Status pembayaran berhasil diperbarui:', response);
+                    console.log('Check Status Response:', response);
 
-                    // Jika status masih PENDING, lakukan pengecekan ulang setelah 30 detik
-                    if (response.result.status_pembayaran === 'PENDING') {
-                        setTimeout(function() {
-                            getInvoiceData();
-                        }, 30000); // 30 detik
-                    } else if (response.result.status_pembayaran === 'SUKSES') {
-                        // Jika status_pembayaran sudah SUKSES, arahkan ke halaman invoice
-                        redirectToInvoicePage(response.result.invoice_id);
-
-                        // Bersihkan session storage
+                    // Check if the transaction_status is 'settlement'
+                    if (response.result.transaction_status === 'settlement') {
                         sessionStorage.clear();
+
+                        // Save only invoice-related information to sessionStorage
+                        var invoiceInfo = JSON.stringify(response.result.invoice);
+                        sessionStorage.setItem('invoice_info', invoiceInfo);
+
+                        // Redirect to the invoice page
+                        var invoiceUrl = '{{ route('home.success', ['invoice_id' => ':invoice_id']) }}';
+                        invoiceUrl = invoiceUrl.replace(':invoice_id', response.result.invoice.id);
+                        window.location.href = invoiceUrl;
+                    } else if (response.result.transaction_status === 'pending') {
+                        console.log('hit 30 detik')
+                        // If the transaction is still pending, schedule another check after 30 seconds
+                        setTimeout(checkTransactionStatus, 30000);
                     }
+                    // Handle other status if needed
                 },
                 error: function(error) {
-                    console.error(error);
+                    console.log('Error checking status:', error);
+                    // Handle error if needed
                 }
             });
         }
 
-        // Panggil fungsi getInvoiceData untuk memulai proses
-        getInvoiceData();
-
-
-
-
-        function redirectToInvoicePage(invoiceId) {
-            var invoiceUrl = '{{ route('home.invoice', ':id') }}';
-            invoiceUrl = invoiceUrl.replace(':id', invoiceId);
-            window.location.href = invoiceUrl;
-        }
+        // Start checking the status when the page loads
+        $(document).ready(function() {
+            checkTransactionStatus();
+        });
     </script>
 @endpush

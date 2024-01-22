@@ -2,7 +2,8 @@
 
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\AdminController;
+use App\Http\Middleware\authjwt;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -25,11 +26,13 @@ Route::post('/login', [AuthController::class, 'loginProcess'])->name('auth.login
 Route::get('/confirmation-payment/{id}', [HomeController::class, 'confirmationPayment'])->name('home.confirmation');
 
 Route::get('/generate/{trx_id}', [HomeController::class, 'generate'])->name('home.generate');
+Route::get('/success/{invoice_id}', [HomeController::class, 'success'])->name('home.success');
 Route::get('/invoice/{invoice_id}', [HomeController::class, 'invoice'])->name('home.invoice');
+Route::middleware(['authjwt'])->group(function () {
+    Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/jenispaket', [AdminController::class, 'jenispaket']);
+    Route::get('/dashboard/pesanan', [AdminController::class, 'pesanan']);
+    Route::get('/dashboard/invoice', [AdminController::class, 'invoice']);
+    Route::get('/dashboard/testimoni', [AdminController::class, 'testimoni']);
+});
 
-
-// Route::get('/dashboard',[AdminController::class,'index']);
-// Route::get('/dashboard/jenispaket',[AdminController::class,'jenispaket']);
-// Route::get('/dashboard/pesanan',[AdminController::class,'pesanan']);
-// Route::get('/dashboard/invoice',[AdminController::class,'invoice']);
-// Route::get('/dashboard/testimoni',[AdminController::class,'testimoni']);

@@ -468,8 +468,8 @@
                 url: 'http://149.129.244.179/api/treatment',
                 method: 'GET',
                 headers: {
-                            Authorization: "Bearer " + localStorage.getItem('token')
-                        },
+                    Authorization: "Bearer " + localStorage.getItem('token')
+                },
                 success: function(data) {
                     var catTreatmentOptions = $('#catTreatmentOptions');
                     // Menambahkan radio button treatment berdasarkan data yang diterima
@@ -492,8 +492,8 @@
                 url: 'http://149.129.244.179/api/service',
                 method: 'GET',
                 headers: {
-                            Authorization: "Bearer " + localStorage.getItem('token')
-                        },
+                    Authorization: "Bearer " + localStorage.getItem('token')
+                },
                 success: function(data) {
                     var catServiceOptions = $('#catServiceOptions');
                     // Menambahkan radio button service berdasarkan data yang diterima
@@ -565,7 +565,9 @@
                         var total = response.result.total_pembayaran;
                         var hargaService = response.result.service.harga;
                         var hargaTreatment = response.result.treatment.harga;
+                        var orderId = response.result.order_id;
 
+                        sessionStorage.setItem('order_id', orderId);
                         sessionStorage.setItem('harga_service', hargaService);
                         sessionStorage.setItem('harga_treatment', hargaTreatment);
                         sessionStorage.setItem('total_pembayaran', total);
@@ -583,6 +585,5 @@
                 });
             });
         });
-
     </script>
 @endpush

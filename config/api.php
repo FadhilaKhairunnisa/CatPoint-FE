@@ -20,6 +20,9 @@ return [
         // qr
         'post_qr' => $endpoint . 'api/generateqr',
 
+        // invoice
+        // 'get_invoice' => $endpoint . 'api/invoice',
+
 
 
 
@@ -28,7 +31,7 @@ return [
         'login' => $endpoint . 'api/login',
 
         'headers' => [
-            'Authorization' => 'Bearer ' . (isset($_COOKIE['token']) ? $_COOKIE['token'] : ''),
+            'Authorization' => 'Bearer ' . (isset($_COOKIE['token_auth']) ? $_COOKIE['token_auth'] : ''),
         ],
     ],
     'production' => [
