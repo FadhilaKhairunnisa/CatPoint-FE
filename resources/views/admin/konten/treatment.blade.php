@@ -1,6 +1,6 @@
 @extends('layouts.admin.app')
 
-@section('title', __('Cat Point - Service'))
+@section('title', __('Cat Point - Treatment'))
 
 @section('content')
     <div class="container">
@@ -11,18 +11,23 @@
             <div class="page-breadcrumb">
                 <div class="row pb-5">
                     <div class="col-7 align-self-center">
-                        <h4 class="page-title text-truncate text-dark font-weight-medium mb-1">Data Paket Service</h4>
+                        <h4 class="page-title text-truncate text-dark font-weight-medium mb-1">Data Paket Treatment</h4>
                         <div class="d-flex align-items-center">
                             <nav aria-label="breadcrumb">
                                 <ol class="breadcrumb m-0 p-0">
                                     <li class="breadcrumb-item"><a href="/superadmin" class="text-muted">Home</a></li>
-                                    <li class="breadcrumb-item text-muted active" aria-current="page">Paket Service
+                                    <li class="breadcrumb-item text-muted active" aria-current="page">Paket Treatment
                                     </li>
                                 </ol>
                             </nav>
                         </div>
                     </div>
-                   
+                    <div class="col-5 align-self-center">
+                        <div class="customize-input float-right">
+                            <button type="button" class="btn btn-primary" data-toggle="modal"
+                                data-target="#modal-tambah">Tambah Data Paket Treatment</button>
+                        </div>
+                    </div>
                 </div>
             </div>
             <!-- ============================================================== -->
@@ -45,7 +50,7 @@
                     <div class="col-12">
                         <div class="card">
                             <div class="card-body">
-                                <h4 class="card-title">List Of Service</h4>
+                                <h4 class="card-title">List Of Treatment</h4>
                                 <div class="table-responsive">
                                     <table id="zero_config" class="table table-striped table-bordered no-wrap">
                                         <thead>

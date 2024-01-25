@@ -29,10 +29,11 @@ Route::middleware(['authjwt'])->group(function () {
     Route::get('/generate/{trx_id}', [HomeController::class, 'generate'])->name('home.generate');
     Route::get('/success/{invoice_id}', [HomeController::class, 'success'])->name('home.success');
     Route::get('/invoice/{invoice_id}', [HomeController::class, 'invoice'])->name('home.invoice');
-    
+
     Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
-    Route::get('/dashboard/jenispaket', [AdminController::class, 'jenispaket']);
-    Route::get('/dashboard/pesanan', [AdminController::class, 'pesanan']);
-    Route::get('/dashboard/invoice', [AdminController::class, 'invoice']);
-    Route::get('/dashboard/testimoni', [AdminController::class, 'testimoni']);
+    Route::get('/dashboard/service', [AdminController::class, 'service'])->name('dashboard.service');
+    Route::get('/dashboard/treatment', [AdminController::class, 'treatment'])->name('dashboard.treatment');
+    Route::get('/dashboard/pesanan', [AdminController::class, 'pesanan'])->name('dashboard.pesanan');
+    Route::get('/dashboard/invoice', [AdminController::class, 'invoice'])->name('dashboard.invoice');
+    Route::get('/dashboard/testimoni', [AdminController::class, 'testimoni'])->name('dashboard.testimoni');
 });

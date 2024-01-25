@@ -83,7 +83,6 @@
                 Authorization: "Bearer " + token
             };
 
-            // Function untuk mengambil dan mengisi data dari API
             function fetchData(endpoint, targetElement) {
                 fetch(endpoint, {
                         method: 'GET',
@@ -91,21 +90,18 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        console.log('data', data);
-                        // Menampilkan data ke elemen HTML
                         var element = document.querySelector(targetElement);
-                        element.innerHTML = ''; // Mengosongkan elemen sebelum menambahkan data baru
 
-                        if (Array.isArray(data) && data.length > 0) {
-                            data.forEach(item => {
-                                element.innerHTML += `<p>${item.name}: ${item.value}</p>`;
-                            });
+                        if (Array.isArray(data.result)) {
+                            var totalData = data.result.length;
+                            element.innerHTML = `${totalData} Data`;
                         } else {
                             element.innerHTML = 'No data available';
                         }
                     })
                     .catch(error => console.error('Error:', error));
             }
+
 
             // Mengisi data service
             fetchData('http://149.129.244.179/api/service', '#dataService');

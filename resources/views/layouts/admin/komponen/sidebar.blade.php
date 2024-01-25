@@ -21,18 +21,23 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
 
-     <!-- Nav Item - Dashboard -->
-     <li class="nav-item active">
-        <a class="nav-link" href="/jenispaket">
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="{{ route('dashboard.service') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
-            <span>Jenis Paket</span></a>
+            <span>Service</span></a>
+    </li>
+    <li class="nav-item active">
+        <a class="nav-link" href="{{ route('dashboard.treatment') }}">
+            <i class="fas fa-fw fa-tachometer-alt"></i>
+            <span>Tratment</span></a>
     </li>
     <!-- Divider -->
     <hr class="sidebar-divider">
 
-     <!-- Nav Item - Dashboard -->
-     <li class="nav-item active">
-        <a class="nav-link" href="/pesanan">
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="{{ route('dashboard.pesanan') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Pesanan</span></a>
     </li>
@@ -40,9 +45,9 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
 
-     <!-- Nav Item - Dashboard -->
-     <li class="nav-item active">
-        <a class="nav-link" href="/invoice">
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="{{ route('dashboard.invoice') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Invoice</span></a>
     </li>
@@ -50,9 +55,9 @@
     <!-- Divider -->
     <hr class="sidebar-divider">
 
-     <!-- Nav Item - Dashboard -->
-     <li class="nav-item active">
-        <a class="nav-link" href="/testimoni">
+    <!-- Nav Item - Dashboard -->
+    <li class="nav-item active">
+        <a class="nav-link" href="{{ route('dashboard.testimoni') }}">
             <i class="fas fa-fw fa-tachometer-alt"></i>
             <span>Testimoni</span></a>
     </li>

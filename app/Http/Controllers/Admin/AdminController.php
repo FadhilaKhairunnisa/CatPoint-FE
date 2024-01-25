@@ -12,7 +12,7 @@ class AdminController extends Controller
         return view('admin.konten.dashboard');
     }
 
-    function hotel()
+    function service()
     {
         return view('admin.konten.paket-hotel');
     }
